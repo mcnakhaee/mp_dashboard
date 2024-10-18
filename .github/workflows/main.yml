@@ -25,10 +25,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run Streamlit app and get_data.py
+    - name: Run Streamlit app and streamlit_app/get_data.py
       run: |
-        nohup streamlit run app.py &
-        python get_data.py
+        nohup streamlit run streamlit_app/app.py 
 
     - name: Deploy to Heroku
       env:
