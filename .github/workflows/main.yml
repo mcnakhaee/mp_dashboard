@@ -1,11 +1,11 @@
-name: Deploy to Heroku
+name: Deploy to Heroku with Docker
 
 on:
   push:
     branches:
       - main
   schedule:
-    - cron: "0 * * * *"  # This runs the workflow every hour
+    - cron: "0 * * * *"  # This will run the workflow every hour
 
 jobs:
   deploy:
@@ -15,23 +15,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
 
-    - name: Install dependencies
+    - name: Build and Push Docker image to Heroku
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Run Streamlit app and streamlit_app/get_data.py
-      run: |
-        nohup streamlit run streamlit_app/app.py 
-
-    - name: Deploy to Heroku
+        echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
+        docker build -t registry.heroku.com/mp-dashboard/web .
+        docker push registry.heroku.com/mp-dashboard/web
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+    - name: Release Docker image on Heroku
       run: |
-        git remote add heroku https://git.heroku.com/mp-dashboard.git
-        git push heroku main
+        heroku container:release web -a mp-dashboard
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
