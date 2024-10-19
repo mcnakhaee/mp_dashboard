@@ -292,16 +292,16 @@ def page2():
     # Display the gallery if data is available
     if not filtered_df.empty:
         # Multi-select filter for delivery
-        delivery_filter = st.multiselect("Filter by Delivery", filtered_df['delivery'].unique())
+        #delivery_filter = st.multiselect("Filter by Delivery", filtered_df['delivery'].unique())
 
         # Range filter for price
-        price_range = st.slider("Filter by Price Range", float(filtered_df['price'].min()), float(filtered_df['price'].max()),
-                                (float(filtered_df['price'].min()), float(filtered_df['price'].max())))
+        #price_range = st.slider("Filter by Price Range", float(filtered_df['price'].min()), float(filtered_df['price'].max()),
+        #                        (float(filtered_df['price'].min()), float(filtered_df['price'].max())))
 
         # Apply additional filters
-        filtered_df = filtered_df[filtered_df['delivery'].isin(delivery_filter) &
-                                  (filtered_df['price'] >= price_range[0]) &
-                                  (filtered_df['price'] <= price_range[1])]
+        #filtered_df = filtered_df[filtered_df['delivery'].isin(delivery_filter) &
+        #                          (filtered_df['price'] >= price_range[0]) &
+        #                          (filtered_df['price'] <= price_range[1])]
 
         # Display the filtered data in columns
         num_cols = 5

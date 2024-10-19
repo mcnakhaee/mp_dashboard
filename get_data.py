@@ -258,7 +258,7 @@ def main():
                     'pancolar','autocord','kalloflex',
                     'minolta','primoplan','exakta',
                     'yashica','krasnogorsk','edixa','kiev']
-    for search_term in search_terms[-1]:
+    for search_term in search_terms:
         print(f"Searching for: {search_term}")
         time.sleep(10)
         save_csv(search_term)
