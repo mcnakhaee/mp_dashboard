@@ -267,7 +267,7 @@ def page2():
 
     # Load data from a CSV file (or any other format)
     # Replace 'your_file.csv' with the actual path to your data file
-    df = pd.read_csv('data/MP_Items_new.csv')
+    df = pd.read_csv('MP_Items_new.csv')
 
     # get the unique values for each search term
     unique_search_terms = df['search_term'].str.lower().unique()

@@ -239,11 +239,11 @@ def save_csv(search_term):
         # Remove duplicates based on 'Title' column
         updated_df = updated_df.drop_duplicates(subset='item')
         # Save updated data to file
-        updated_df.to_csv('data/MP_Items_new.csv', index=False)
+        updated_df.to_csv('MP_Items_new.csv', index=False)
         print('saved')
     except:
         print('failed')
-        df.to_csv('data/MP_Items_new.csv', index=False)
+        df.to_csv('MP_Items_new.csv', index=False)
 
 
 def main():
