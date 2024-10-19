@@ -274,7 +274,7 @@ def page2():
     # Add a radio button to select the category
     search_terms = ['All'] + list(unique_search_terms)
     # order alphabetically the search terms and radio buttons
-    search_terms.sort()
+    #search_terms.sort()
     # Add a radio button to select the category based on unique search terms
     selected_category = st.radio("Select a search category", search_terms)
 
