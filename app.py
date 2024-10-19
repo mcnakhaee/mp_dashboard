@@ -272,10 +272,9 @@ def page2():
     # get the unique values for each search term
     unique_search_terms = df['search_term'].str.lower().unique()
     # Add a radio button to select the category
-    selected_category = st.radio("Select a category", unique_search_terms)
-
     search_terms = ['All'] + list(unique_search_terms)
-
+    # order alphabetically the search terms and radio buttons
+    search_terms.sort()
     # Add a radio button to select the category based on unique search terms
     selected_category = st.radio("Select a search category", search_terms)
 

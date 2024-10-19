@@ -262,6 +262,11 @@ def main():
         print(f"Searching for: {search_term}")
         time.sleep(10)
         save_csv(search_term)
+    try:
+        search_term = ' '
+        save_csv(search_term)
+    except Exception:
+        print('failed to save blank search')
     #asahi = get_item_dataframe(get_items('asahi', ))
     #save_csv(asahi)
 if __name__ == "__main__":
