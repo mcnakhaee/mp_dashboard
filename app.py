@@ -265,44 +265,40 @@ def main():
 def page2():
     st.title("Product Gallery")
 
-    # Load data from a CSV file (or any other format)
-    # Replace 'your_file.csv' with the actual path to your data file
+    # Load data from a CSV file (replace 'MP_Items_new.csv' with the actual file path)
     df = pd.read_csv('MP_Items_new.csv')
 
-    # get the unique values for each search term
+    # Get the unique values for each search term, converted to lowercase
     unique_search_terms = df['search_term'].str.lower().unique()
-    # Add a radio button to select the category
+
+    # Add 'All' option to show all items
     search_terms = ['All'] + list(unique_search_terms)
-    # order alphabetically the search terms and radio buttons
-    #search_terms.sort()
-    # Add a radio button to select the category based on unique search terms
-    selected_category = st.radio("Select a search category", search_terms)
+
+    # Order search terms alphabetically
+    search_terms.sort()
+
+    # Create horizontal radio buttons using st.columns
+    cols = st.columns(len(search_terms))
+    selected_category = None
+    for i, term in enumerate(search_terms):
+        if cols[i].button(term.capitalize()):  # Capitalize the search terms for better display
+            selected_category = term
+
+    # Default to "All" if no button has been selected
+    if selected_category is None:
+        selected_category = 'all'
 
     # Filter the DataFrame based on the selected category
-    if selected_category == 'All':
+    if selected_category == 'all':
         filtered_df = df  # Show all items if 'All' is selected
     else:
-        filtered_df = df[df['search_term'] == selected_category]  # Filter by the selected search term
-
+        filtered_df = df[df['search_term'] == selected_category]
 
     # Sort by date (or any other sorting condition)
     filtered_df = filtered_df.sort_values(by='dates', ascending=False).reset_index(drop=True)
 
     # Display the gallery if data is available
     if not filtered_df.empty:
-        # Multi-select filter for delivery
-        #delivery_filter = st.multiselect("Filter by Delivery", filtered_df['delivery'].unique())
-
-        # Range filter for price
-        #price_range = st.slider("Filter by Price Range", float(filtered_df['price'].min()), float(filtered_df['price'].max()),
-        #                        (float(filtered_df['price'].min()), float(filtered_df['price'].max())))
-
-        # Apply additional filters
-        #filtered_df = filtered_df[filtered_df['delivery'].isin(delivery_filter) &
-        #                          (filtered_df['price'] >= price_range[0]) &
-        #                          (filtered_df['price'] <= price_range[1])]
-
-        # Display the filtered data in columns
         num_cols = 5
         columns = st.columns(num_cols)
         for index, row in filtered_df.iterrows():
@@ -311,7 +307,6 @@ def page2():
                 st.image(row['img_url'], caption=row['title'], use_column_width=True)
                 st.write(f"<b>{row['price']}</b>", unsafe_allow_html=True)
                 st.markdown(f"<a href='{row['product_url']}' target='_blank'>View</a>", unsafe_allow_html=True)
-
     else:
         st.write("No items found.")
 

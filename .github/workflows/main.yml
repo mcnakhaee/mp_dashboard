@@ -1,11 +1,9 @@
 name: Deploy to Heroku with Docker
-
 on:
-  push:
-    branches:
-      - main
+  # Only run the workflow on a schedule, not on push
   schedule:
     - cron: "0 0 * * *"  # This will run the workflow every day at midnight UTC
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
