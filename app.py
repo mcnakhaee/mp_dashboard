@@ -263,57 +263,58 @@ def main():
 
 
 def page2():
-    st.title("Product Gallery P2")
-    # st.title("Page 2")
-    st.write("This is the second page of the app.")
-    # Text area for description input
-    searched_items = st.text_area("Camera", '')
+    st.title("Product Gallery")
 
-    # Session state initialization
-    if 'df' not in st.session_state:
-        st.session_state.df = None
+    # Load data from a CSV file (or any other format)
+    # Replace 'your_file.csv' with the actual path to your data file
+    df = pd.read_csv('data/MP_Items_new.csv')
 
-    # Get Items button
-    if st.button("Get Items"):
-        st.session_state.df = pd.read_csv('../../data/MP_items_new.csv')
-        st.session_state.df = st.session_state.df.sort_values(by='dates', ascending=False).reset_index(drop=True)
+    # get the unique values for each search term
+    unique_search_terms = df['search_term'].str.lower().unique()
+    # Add a radio button to select the category
+    selected_category = st.radio("Select a category", unique_search_terms)
 
-    # Display the gallery if df is available in session state
-    if st.session_state.df is not None:
-        df = st.session_state.df
-        df = df[(df['title'].str.contains(searched_items)) | (df['description'].str.contains(searched_items))]
-        #df['datetime'] = pd.to_datetime(df['datetime'], format='mixed')
+    search_terms = ['All'] + list(unique_search_terms)
+
+    # Add a radio button to select the category based on unique search terms
+    selected_category = st.radio("Select a search category", search_terms)
+
+    # Filter the DataFrame based on the selected category
+    if selected_category == 'All':
+        filtered_df = df  # Show all items if 'All' is selected
+    else:
+        filtered_df = df[df['search_term'] == selected_category]  # Filter by the selected search term
+
+
+    # Sort by date (or any other sorting condition)
+    filtered_df = filtered_df.sort_values(by='dates', ascending=False).reset_index(drop=True)
+
+    # Display the gallery if data is available
+    if not filtered_df.empty:
         # Multi-select filter for delivery
-        delivery_filter = st.multiselect("Filter by Delivery", df['delivery'].unique())
+        delivery_filter = st.multiselect("Filter by Delivery", filtered_df['delivery'].unique())
 
         # Range filter for price
-        price_range = st.slider("Filter by Price Range", float(df['price'].min()), float(df['price'].max()),
-                                (float(df['price'].min()), float(df['price'].max())))
+        price_range = st.slider("Filter by Price Range", float(filtered_df['price'].min()), float(filtered_df['price'].max()),
+                                (float(filtered_df['price'].min()), float(filtered_df['price'].max())))
 
-        # Apply filters
-        filtered_df = df[
-            df['delivery'].isin(delivery_filter) & (df['price'] >= price_range[0]) & (df['price'] <= price_range[1])]
+        # Apply additional filters
+        filtered_df = filtered_df[filtered_df['delivery'].isin(delivery_filter) &
+                                  (filtered_df['price'] >= price_range[0]) &
+                                  (filtered_df['price'] <= price_range[1])]
 
-        #df = df.sort_values(by='datetime', ascending=False).reset_index(drop=True)
-        # df['datetime'] = df['datetime'].dt.strftime('%Y-%m-%d')
+        # Display the filtered data in columns
         num_cols = 5
         columns = st.columns(num_cols)
-        if st.button("Save DataFrame"):
-            df.to_csv('data/dataframe.csv', index=False)
-            st.success("DataFrame saved successfully!")
-        # Create a map
-        st.map(df[['latitude', 'longitude']])
-        # Display product images in a gallery
-        for index, row in df.iterrows():
+        for index, row in filtered_df.iterrows():
             col = columns[index % num_cols]
             with col:
                 st.image(row['img_url'], caption=row['title'], use_column_width=True)
                 st.write(f"<b>{row['price']}</b>", unsafe_allow_html=True)
-                # st.write(row['product_url'])
-                #st.write(row['datetime'])
-                # st.write(row['datetime'].split()[0])
-                # st.markdown(row['datetime'], unsafe_allow_html=True)
                 st.markdown(f"<a href='{row['product_url']}' target='_blank'>View</a>", unsafe_allow_html=True)
+
+    else:
+        st.write("No items found.")
 
 
 # Streamlit app

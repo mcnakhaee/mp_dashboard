@@ -227,6 +227,7 @@ def get_item_dataframe(searched_items):
 
 def save_csv(search_term):
     df = get_item_dataframe(get_items(search_term, ))
+    df['search_term'] = search_term
     try:
         # Load existing data from file
         existing_df = pd.read_csv('MP_Items_new.csv')
@@ -238,11 +239,11 @@ def save_csv(search_term):
         # Remove duplicates based on 'Title' column
         updated_df = updated_df.drop_duplicates(subset='item')
         # Save updated data to file
-        updated_df.to_csv('MP_Items_new.csv', index=False)
+        updated_df.to_csv('data/MP_Items_new.csv', index=False)
         print('saved')
     except:
         print('failed')
-        df.to_csv('MP_Items_new.csv', index=False)
+        df.to_csv('data/MP_Items_new.csv', index=False)
 
 
 def main():
