@@ -27,6 +27,7 @@ jobs:
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git pull
         git add .
         if [ -n "$(git status --porcelain)" ]; then
           git commit -m "Update data from get_data.py"
