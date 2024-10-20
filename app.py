@@ -261,6 +261,56 @@ def main():
                 # st.markdown(row['datetime'], unsafe_allow_html=True)
                 st.markdown(f"<a href='{row['product_url']}' target='_blank'>View</a>", unsafe_allow_html=True)
 
+def page_live_searchterms():
+    # df = df.sort_values(by='datetime', ascending=False).reset_index(drop=True)
+    # df['datetime'] = df['datetime'].dt.strftime('%Y-%m-%d')
+    # Add 'All' option to show all items
+    search_terms = ['All','kowa','asahi',
+                    'mamiya','pentax',
+                    'rolleiflex','rolleicord'
+                    'olympus','nikon',
+                    'zenith','takumar',
+                    'topcon','primo',
+                    'nikkormat','nicca','topcoflex',
+                    'ihagee','asahiflex','miranda',
+                    'pancolar','autocord','kalloflex',
+                    'minolta','primoplan','exakta',
+                    'yashica','krasnogorsk','edixa','kiev']
+    # add radio buttons for search terms
+    selected_term = st.sidebar.radio("Select Search Terms", search_terms)
+    # Display items based on selected search term
+    cat1 = st.text_input("Enter a number", value="31")
+    cat1 = int(cat1)
+    cat2 = st.text_input("Enter a number", value="480")
+    cat2 = int(cat2)
+    # Get Items button
+    if selected_term!= 'All':
+        st.session_state.df = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=cat2))
+        st.session_state.df = st.session_state.df.sort_values(by='dates', ascending=False).reset_index(drop=True)
+    else:
+        st.session_state.df = get_item_title(get_items(' ', cat_1=cat1, cat_2=cat2))
+        st.session_state.df = st.session_state.df.sort_values(by='dates', ascending=False).reset_index(drop=True)
+
+    # Display the gallery if df is available in session state
+    if st.session_state.df is not None:
+        df = st.session_state.df
+
+        num_cols = 5
+        columns = st.columns(num_cols)
+        # Create a map
+        st.map(df[['latitude', 'longitude']])
+        # Display product images in a gallery
+        for index, row in df.iterrows():
+            col = columns[index % num_cols]
+            with col:
+                st.image(row['img_url'], caption=row['title'], use_column_width=True)
+                st.write(f"<b>{row['price']}</b>", unsafe_allow_html=True)
+                # st.write(row['product_url'])
+                # st.write(row['datetime'])
+                # st.write(row['datetime'].split()[0])
+                # st.markdown(row['datetime'], unsafe_allow_html=True)
+                st.markdown(f"<a href='{row['product_url']}' target='_blank'>View</a>", unsafe_allow_html=True)
+
 
 def page2():
     st.title("Product Gallery")
@@ -274,7 +324,7 @@ def page2():
     # Add 'All' option to show all items
     search_terms = ['All','kowa','asahi',
                     'mamiya','pentax',
-                    'rolleiflex','rolleicord'
+                    'rolleiflex','rolleicord',
                     'olympus','nikon',
                     'zenith','takumar',
                     'topcon','primo',
@@ -325,11 +375,12 @@ def page2():
 if __name__ == "__main__":
     pages = {
         "Live Search": main,
+        "Live Search Terms": page_live_searchterms,
         "From Data": page2
     }
 
     st.sidebar.title("Navigation")
-    selection = st.sidebar.radio("Go to", list(pages.keys()))
+    selection = st.radio("Go to", list(pages.keys()))
 
     page = pages[selection]
     page()
