@@ -272,7 +272,17 @@ def page2():
     unique_search_terms = df['search_term'].str.lower().unique()
 
     # Add 'All' option to show all items
-    search_terms = ['All'] + list(unique_search_terms)
+    search_terms = ['All','kowa','asahi',
+                    'mamiya','pentax',
+                    'rolleiflex','rolleicord'
+                    'olympus','nikon',
+                    'zenith','takumar',
+                    'topcon','primo',
+                    'nikkormat','nicca','topcoflex',
+                    'ihagee','asahiflex','miranda',
+                    'pancolar','autocord','kalloflex',
+                    'minolta','primoplan','exakta',
+                    'yashica','krasnogorsk','edixa','kiev']
 
     # Order search terms alphabetically
     search_terms.sort()
