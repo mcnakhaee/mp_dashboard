@@ -1,11 +1,8 @@
 name: Deploy to Heroku with Docker
+
 on:
-  push:
-    branches:
-      - main
   schedule:
     - cron: "0 0 * * *"  # This will run the workflow every day at midnight UTC
-
 
 jobs:
   deploy:
@@ -14,6 +11,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # Fetch the entire history to avoid shallow clone issues
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
@@ -30,7 +29,7 @@ jobs:
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        
+
         # Add all changes and commit if necessary
         git add .
         if [ -n "$(git status --porcelain)" ]; then
