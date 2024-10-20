@@ -322,7 +322,7 @@ def page2():
     unique_search_terms = df['search_term'].str.lower().unique()
 
     # Add 'All' option to show all items
-    search_terms = ['All','kowa','asahi',
+    search_terms = [' ','All','kowa','asahi',
                     'mamiya','pentax',
                     'rolleiflex','rolleicord',
                     'olympus','nikon',
