@@ -27,14 +27,23 @@ jobs:
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git pull
+
+        # Stash any uncommitted changes to avoid conflict
+        git stash
+
+        # Pull the latest changes from the remote repository
+        git pull origin main
+
+        # Apply stashed changes
+        git stash pop
+
+        # Check if there are any changes to commit
         git add .
         if [ -n "$(git status --porcelain)" ]; then
           git commit -m "Update data from get_data.py"
           git push origin main
         else
           echo "No changes to commit"
-        fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
