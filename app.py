@@ -374,8 +374,9 @@ def page2():
 # Streamlit app
 if __name__ == "__main__":
     pages = {
-        "Live Search": main,
         "Live Search Terms": page_live_searchterms,
+        "Live Search": main,
+
         "From Data": page2
     }
 
