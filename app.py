@@ -267,7 +267,7 @@ def page_live_searchterms():
     # Add 'All' option to show all items
     search_terms = ['All','kowa','asahi',
                     'mamiya','pentax',
-                    'rolleiflex','rolleicord'
+                    'rolleiflex','rolleicord',
                     'olympus','nikon',
                     'zenith','takumar',
                     'topcon','primo',
