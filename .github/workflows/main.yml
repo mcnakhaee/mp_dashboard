@@ -25,28 +25,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Commit and push the generated data (if changes exist)
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-
-        # Add all changes and commit if necessary
-        git add .
-        if [ -n "$(git status --porcelain)" ]; then
-          git commit -m "Update data from get_data.py"
-          
-          # Fetch latest changes to avoid overwriting anything
-          git fetch origin main
-          
-          # Merge latest changes without losing local modifications
-          git merge origin/main --strategy-option=theirs  # Keep remote changes on conflict
-          
-          # Push the changes
-          git push origin main
-        else
-          echo "No changes to commit"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and Push Docker image to Heroku
       run: |
