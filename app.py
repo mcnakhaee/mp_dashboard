@@ -6,16 +6,14 @@ from pathlib import Path
 from openai import OpenAI
 import openai
 import httpx
-import pydeck as pdk
 from theme import set_theme
-
+import re
+import requests
+from bs4 import BeautifulSoup
+import requests
+from bs4 import BeautifulSoup
 # Call set_theme function
 set_theme()
-# import telegram
-# import config
-# from marktplaats import SearchQuery, SortBy, SortOrder
-
-import pandas as pd
 
 netherlands_bounds = {
     "lat_min": 50.5,
@@ -28,6 +26,55 @@ URL = 'https://www.marktplaats.nl/lrp/api/search'
 Item = Dict[str, Any]
 
 
+
+
+def get_category_number(input_string):
+    # The regular expression to match the numerical value
+    pattern = r'\d+'
+
+    # Finding the numerical value using the regular expression
+    match = re.search(pattern, input_string)
+
+    if match:
+        numerical_value = match.group()
+        return numerical_value
+    else:
+        return None
+
+
+
+def get_category(url = 'https://www.marktplaats.nl/cp/31/audio-tv-en-foto/'):
+    response = requests.get(url)
+    html_content = response.content
+
+    # Parse the HTML content with BeautifulSoup
+    soup = BeautifulSoup(html_content, 'html.parser')
+
+    # Define the class and attribute you are interested in
+    class_name = 'hz-Link hz-Link--isolated Categories-link false'  # replace with the class name
+    attribute_name = 'data-testid'  # replace with the attribute name
+
+    # Find all elements with the specified class
+    # elements = soup.find_all(class_=class_name)
+
+
+    # Find all elements with a data-testid attribute
+    elements = soup.find_all(attrs={"data-testid": True})
+    href_values = []
+    numerical_value_id = []
+    categories = {}
+    # Extract and print the value of the data-testid attribute for each element
+    for element in elements:
+
+        data_testid_value = element.get('data-testid')
+        numerical_value_id = get_category_number(data_testid_value)
+        href_value = element.get('href')
+        if data_testid_value:
+            # print(data_testid_value)
+            # print(href_value)
+            href_values.append(href_value)
+            categories[href_value] = numerical_value_id
+    return categories
 def get_items(game: str, cat_1=31, cat_2=480) -> List[Item]:
     query: Dict[str, Union[str, int]] = dict(
         l1CategoryId=cat_1,
@@ -214,6 +261,14 @@ def main():
     searched_items = st.text_area("Description", '')
     cat1 = st.text_input("Enter a number", value="31")
     cat1 = int(cat1)
+    # add a dropdown manue based on the results of get category function based on the values of the dictionary key
+    # st.selectbox("Select a category", get_categories())
+
+    # Get items from Marktplaats API
+    # Add a dropdown menu based on the results of get category function
+    # st.selectbox("Select a category", get_categories())
+
+
     cat2 = st.text_input("Enter a number", value="480")
     cat2 = int(cat2)
     # Session state initialization
@@ -263,29 +318,43 @@ def main():
 
 def page_live_searchterms():
     # df = df.sort_values(by='datetime', ascending=False).reset_index(drop=True)
-    # df['datetime'] = df['datetime'].dt.strftime('%Y-%m-%d')
     # Add 'All' option to show all items
-    search_terms = ['All','kowa','asahi',
+    cat1 = 31
+    selected_type = st.sidebar.radio("Select Search Terms", ['lenses',
+                                                             'cameras',
+                                                             'professionele-apparatuur',
+                                                             'videocamera'])
+    if selected_type == 'lenses':
+        cat2 = 495
+    elif selected_type == 'cameras':
+        cat2 = 480
+    elif selected_type == 'professionele':
+        cat2 = 501
+    elif selected_type == 'videocamera':
+        cat2 = 1130
+    search_terms = ['All','Fotocamera','kowa','asahi',
                     'mamiya','pentax',
-                    'rolleiflex','rolleicord',
-                    'olympus','nikon',
+                    'rolleiflex','rolleicord','rollei'
+                    'olympus','nikon','canon'
                     'zenith','takumar',
                     'topcon','primo',
                     'nikkormat','nicca','topcoflex',
                     'ihagee','asahiflex','miranda',
                     'pancolar','autocord','kalloflex',
                     'minolta','primoplan','exakta',
-                    'yashica','krasnogorsk','edixa','kiev']
+                    'yashica','krasnogorsk','edixa','kiev','jupiter']
     # add radio buttons for search terms
     selected_term = st.sidebar.radio("Select Search Terms", search_terms)
     # Display items based on selected search term
-    cat1 = st.text_input("Enter a number", value="31")
-    cat1 = int(cat1)
-    cat2 = st.text_input("Enter a number", value="480")
-    cat2 = int(cat2)
+
     # Get Items button
     if selected_term!= 'All':
-        st.session_state.df = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=cat2))
+        lenses = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=495))
+        cameras = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=480))
+        video = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=501))
+        others = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=1130))
+        # concat the above dataframes
+        st.session_state.df = pd.concat([lenses, cameras, video, others], ignore_index=True)
         st.session_state.df = st.session_state.df.sort_values(by='dates', ascending=False).reset_index(drop=True)
     else:
         st.session_state.df = get_item_title(get_items(' ', cat_1=cat1, cat_2=cat2))
@@ -294,7 +363,9 @@ def page_live_searchterms():
     # Display the gallery if df is available in session state
     if st.session_state.df is not None:
         df = st.session_state.df
-
+        # add a radio button to the sidebar if the value is Vandaag
+        if st.sidebar.radio("Show Vandaag", ['Vandaag', 'All']):
+            df = df[df['dates'].str.contains('Vandaag')]
         num_cols = 5
         columns = st.columns(num_cols)
         # Create a map
@@ -305,10 +376,6 @@ def page_live_searchterms():
             with col:
                 st.image(row['img_url'], caption=row['title'], use_column_width=True)
                 st.write(f"<b>{row['price']}</b>", unsafe_allow_html=True)
-                # st.write(row['product_url'])
-                # st.write(row['datetime'])
-                # st.write(row['datetime'].split()[0])
-                # st.markdown(row['datetime'], unsafe_allow_html=True)
                 st.markdown(f"<a href='{row['product_url']}' target='_blank'>View</a>", unsafe_allow_html=True)
 
 
