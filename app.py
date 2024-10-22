@@ -332,7 +332,7 @@ def page_live_searchterms():
         cat2 = 501
     elif selected_type == 'videocamera':
         cat2 = 1130
-    search_terms = ['All','Fotocamera','kowa','asahi',
+    search_terms = ['All','Fotocamera','kowa','asahi','yashica','bronica',
                     'mamiya','pentax',
                     'rolleiflex','rolleicord','rollei'
                     'olympus','nikon','canon'
@@ -342,7 +342,7 @@ def page_live_searchterms():
                     'ihagee','asahiflex','miranda',
                     'pancolar','autocord','kalloflex',
                     'minolta','primoplan','exakta',
-                    'yashica','krasnogorsk','edixa','kiev','jupiter']
+                    'krasnogorsk','edixa','kiev','jupiter']
     # add radio buttons for search terms
     selected_term = st.sidebar.radio("Select Search Terms", search_terms)
     # Display items based on selected search term
