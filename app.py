@@ -320,52 +320,62 @@ def page_live_searchterms():
     # df = df.sort_values(by='datetime', ascending=False).reset_index(drop=True)
     # Add 'All' option to show all items
     cat1 = 31
-    selected_type = st.sidebar.radio("Select Search Terms", ['lenses',
+    cat2 = 480
+    search_terms = ['All', 'Fotocamera', 'kowa', 'asahi',
+                    'yashica', 'bronica','mamiya', 'pentax',
+                                                                             'rolleiflex', 'rolleicord', 'rollei'
+                                                                                                         'olympus',
+                                                                             'nikon', 'canon'
+                                                                                      'zenith', 'takumar',
+                                                                             'topcon', 'primo',
+                                                                             'nikkormat', 'nicca', 'topcoflex',
+                                                                             'ihagee', 'asahiflex', 'miranda',
+                                                                             'pancolar', 'autocord', 'kalloflex',
+                                                                             'minolta', 'primoplan', 'exakta',
+                                                                             'krasnogorsk', 'edixa', 'kiev', 'jupiter',
+                                                                             'konica']
+
+
+    selected_type = st.sidebar.radio("Select Search Terms", ['everything','lenses',
                                                              'cameras',
-                                                             'professionele-apparatuur',
-                                                             'videocamera'])
+                                                             'professionele-apparatuur','videocamera'])
+    selected_term = st.sidebar.radio("Select Search Terms", search_terms)
+    df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=495))
     if selected_type == 'lenses':
         cat2 = 495
+        df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=495))
     elif selected_type == 'cameras':
         cat2 = 480
+        df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=480))
+
     elif selected_type == 'professionele':
         cat2 = 501
+        df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=1130))
     elif selected_type == 'videocamera':
         cat2 = 1130
-    search_terms = ['All','Fotocamera','kowa','asahi','yashica','bronica',
-                    'mamiya','pentax',
-                    'rolleiflex','rolleicord','rollei'
-                    'olympus','nikon','canon'
-                    'zenith','takumar',
-                    'topcon','primo',
-                    'nikkormat','nicca','topcoflex',
-                    'ihagee','asahiflex','miranda',
-                    'pancolar','autocord','kalloflex',
-                    'minolta','primoplan','exakta',
-                    'krasnogorsk','edixa','kiev','jupiter']
-    # add radio buttons for search terms
-    selected_term = st.sidebar.radio("Select Search Terms", search_terms)
-    # Display items based on selected search term
-
-    # Get Items button
-    if selected_term!= 'All':
+        df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=501))
+    elif selected_type == 'everything':
+        # add radio buttons for search terms
+        # Display items based on selected search term
         lenses = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=495))
         cameras = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=480))
         video = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=501))
         others = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=1130))
+        df_items = pd.concat([lenses, cameras, video, others], ignore_index=True)
+    # Get Items button
+    if selected_term!= 'All':
         # concat the above dataframes
-        st.session_state.df = pd.concat([lenses, cameras, video, others], ignore_index=True)
+        st.session_state.df = df_items
         st.session_state.df = st.session_state.df.sort_values(by='dates', ascending=False).reset_index(drop=True)
     else:
         st.session_state.df = get_item_title(get_items(' ', cat_1=cat1, cat_2=cat2))
         st.session_state.df = st.session_state.df.sort_values(by='dates', ascending=False).reset_index(drop=True)
-
+    df = st.session_state.df
+    # add a radio button to the sidebar if the value is Vandaag
+    if st.sidebar.radio("Show Vandaag", ['Vandaag', 'All']):
+        df = df[df['dates'].str.contains('Vandaag')]
     # Display the gallery if df is available in session state
-    if st.session_state.df is not None:
-        df = st.session_state.df
-        # add a radio button to the sidebar if the value is Vandaag
-        if st.sidebar.radio("Show Vandaag", ['Vandaag', 'All']):
-            df = df[df['dates'].str.contains('Vandaag')]
+    if df is not None:
         num_cols = 5
         columns = st.columns(num_cols)
         # Create a map
