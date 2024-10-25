@@ -12,6 +12,7 @@ import requests
 from bs4 import BeautifulSoup
 import requests
 from bs4 import BeautifulSoup
+import time
 # Call set_theme function
 set_theme()
 
@@ -323,9 +324,9 @@ def page_live_searchterms():
     cat2 = 480
     search_terms = ['All', 'Fotocamera', 'kowa', 'asahi',
                     'yashica', 'bronica','mamiya', 'pentax',
-                                                                             'rolleiflex', 'rolleicord', 'rollei'
+                                                                             'rolleiflex', 'rolleicord', 'rollei',
                                                                                                          'olympus',
-                                                                             'nikon', 'canon'
+                                                                             'nikon', 'canon',
                                                                                       'zenith', 'takumar',
                                                                              'topcon', 'primo',
                                                                              'nikkormat', 'nicca', 'topcoflex',
@@ -340,53 +341,55 @@ def page_live_searchterms():
                                                              'cameras',
                                                              'professionele-apparatuur','videocamera'])
     selected_term = st.sidebar.radio("Select Search Terms", search_terms)
-    df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=495))
-    if selected_type == 'lenses':
-        cat2 = 495
-        df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=495))
-    elif selected_type == 'cameras':
-        cat2 = 480
-        df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=480))
+    if st.button("Get Items"):
 
-    elif selected_type == 'professionele':
-        cat2 = 501
-        df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=1130))
-    elif selected_type == 'videocamera':
-        cat2 = 1130
-        df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=501))
-    elif selected_type == 'everything':
-        # add radio buttons for search terms
-        # Display items based on selected search term
-        lenses = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=495))
-        cameras = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=480))
-        video = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=501))
-        others = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=1130))
-        df_items = pd.concat([lenses, cameras, video, others], ignore_index=True)
-    # Get Items button
-    if selected_term!= 'All':
-        # concat the above dataframes
-        st.session_state.df = df_items
-        st.session_state.df = st.session_state.df.sort_values(by='dates', ascending=False).reset_index(drop=True)
-    else:
-        st.session_state.df = get_item_title(get_items(' ', cat_1=cat1, cat_2=cat2))
-        st.session_state.df = st.session_state.df.sort_values(by='dates', ascending=False).reset_index(drop=True)
-    df = st.session_state.df
-    # add a radio button to the sidebar if the value is Vandaag
-    if st.sidebar.radio("Show Vandaag", ['Vandaag', 'All']):
-        df = df[df['dates'].str.contains('Vandaag')]
-    # Display the gallery if df is available in session state
-    if df is not None:
-        num_cols = 5
-        columns = st.columns(num_cols)
-        # Create a map
-        st.map(df[['latitude', 'longitude']])
-        # Display product images in a gallery
-        for index, row in df.iterrows():
-            col = columns[index % num_cols]
-            with col:
-                st.image(row['img_url'], caption=row['title'], use_column_width=True)
-                st.write(f"<b>{row['price']}</b>", unsafe_allow_html=True)
-                st.markdown(f"<a href='{row['product_url']}' target='_blank'>View</a>", unsafe_allow_html=True)
+        df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=495))
+        if selected_type == 'lenses':
+            cat2 = 495
+            df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=495))
+        elif selected_type == 'cameras':
+            cat2 = 480
+            df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=480))
+
+        elif selected_type == 'professionele':
+            cat2 = 501
+            df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=1130))
+        elif selected_type == 'videocamera':
+            cat2 = 1130
+            df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=501))
+        elif selected_type == 'everything':
+            # add radio buttons for search terms
+            # Display items based on selected search term
+            lenses = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=495))
+            cameras = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=480))
+            video = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=501))
+            others = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=1130))
+            df_items = pd.concat([lenses, cameras, video, others], ignore_index=True)
+        # Get Items button
+        if selected_term!= 'All':
+            # concat the above dataframes
+            st.session_state.df = df_items
+            st.session_state.df = st.session_state.df.sort_values(by='dates', ascending=False).reset_index(drop=True)
+        else:
+            st.session_state.df = get_item_title(get_items(' ', cat_1=cat1, cat_2=cat2))
+            st.session_state.df = st.session_state.df.sort_values(by='dates', ascending=False).reset_index(drop=True)
+        df = st.session_state.df
+        # add a radio button to the sidebar if the value is Vandaag
+        if st.sidebar.radio("Show Vandaag", ['Vandaag', 'All']):
+            df = df[df['dates'].str.contains('Vandaag')]
+        # Display the gallery if df is available in session state
+        if df is not None:
+            num_cols = 5
+            columns = st.columns(num_cols)
+            # Create a map
+            st.map(df[['latitude', 'longitude']])
+            # Display product images in a gallery
+            for index, row in df.iterrows():
+                col = columns[index % num_cols]
+                with col:
+                    st.image(row['img_url'], caption=row['title'], use_column_width=True)
+                    st.write(f"<b>{row['price']}</b>", unsafe_allow_html=True)
+                    st.markdown(f"<a href='{row['product_url']}' target='_blank'>View</a>", unsafe_allow_html=True)
 
 
 def page2():
