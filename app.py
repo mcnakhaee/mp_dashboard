@@ -329,7 +329,7 @@ def main():
         for index, row in df.iterrows():
             col = columns[index % num_cols]
             with col:
-                st.image(row['img_url'], caption=row['title'], use_column_width=True)
+                st.image(row['img_url'], caption=row['title'], use_container_width=True)
                 st.write(f"<b>{row['price']}</b>", unsafe_allow_html=True)
                 # st.write(row['product_url'])
                 #st.write(row['datetime'])
@@ -353,6 +353,7 @@ def page_live_searchterms():
 
     #if st.button("Get Items"):
     df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=495))
+
     if selected_type == 'lenses':
         cat2 = 495
         df_items = get_item_title(get_items(selected_term, cat_1=cat1, cat_2=495))
@@ -380,23 +381,26 @@ def page_live_searchterms():
         st.session_state.df = st.session_state.df.sort_values(by='dates', ascending=False).reset_index(drop=True)
 
     df = st.session_state.df
-    df = df[df['dates'].str.contains(search_time)]
+    if  search_time == 'Vandaag' :
+         df_show = df[df['dates'].str.contains('Vandaag')]
+    else:
+         df_show = df
 
 
-    if df is not None:
+    if df_show is not None:
             num_cols = 5
             columns = st.columns(num_cols)
-            st.map(df[['latitude', 'longitude']])
+            st.map(df_show[['latitude', 'longitude']])
 
             # Ensure the session state variable exists
             if 'clicked_image' not in st.session_state:
                 st.session_state.clicked_image = None
 
-            for index, row in df.iterrows():
+            for index, row in df_show.iterrows():
                 col = columns[index % num_cols]
                 with col:
                     # Display image and other product details
-                    st.image(row['img_url'], caption=row['title'], use_column_width=True)
+                    st.image(row['img_url'], caption=row['title'], use_container_width=True)
                     st.write(f"<b>{row['price']}</b>", unsafe_allow_html=True)
                     st.markdown(f"<a href='{row['product_url']}' target='_blank'>View</a>", unsafe_allow_html=True)
 
@@ -456,7 +460,7 @@ def page2():
         for index, row in filtered_df.iterrows():
             col = columns[index % num_cols]
             with col:
-                st.image(row['img_url'], caption=row['title'], use_column_width=True)
+                st.image(row['img_url'], caption=row['title'], use_container_width=True)
                 st.write(f"<b>{row['price']}</b>", unsafe_allow_html=True)
                 st.markdown(f"<a href='{row['product_url']}' target='_blank'>View</a>", unsafe_allow_html=True)
     else:
